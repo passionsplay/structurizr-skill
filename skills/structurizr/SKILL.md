@@ -44,7 +44,7 @@ Run the script by its path inside this skill directory, from the directory that 
 
 ## Gotchas
 
-- **Validate and inspect are different tools.** `validate` answers "will this parse?" and exits non-zero on errors. `inspect` answers "is this a good C4 model?", prints its findings with an `ERROR` label, and still exits 0. A workspace can validate cleanly and have dozens of inspect findings.
+- **Validate and inspect are different tools.** `validate` answers "will this parse?" and exits non-zero on errors. `inspect` answers "is this a good C4 model?", prints each finding with an `ERROR` label, and exits with the number of findings. A non-zero inspect exit is not a failure; never treat it like a failed validate. A workspace can validate cleanly and have dozens of inspect findings.
 - **Paths must be inside the current directory.** The container only sees the mounted directory. `cd` to the workspace's directory before running the script; output directories must be relative.
 - **`local` is slow to start.** On some Docker hosts the server takes several minutes before it answers HTTP. With `STRUCTURIZR_DETACH=1` the script waits for it; in the foreground, wait for the page rather than assuming it failed. Open `http://localhost:8080/`, which redirects to `/workspace/1`.
 - **`local` writes a `.structurizr/` folder** next to the workspace (logs, search index, layout). Suggest adding it to `.gitignore`. Manual layout tweaks made in the UI are saved to `workspace.json`; keep that file if the user wants layouts preserved.

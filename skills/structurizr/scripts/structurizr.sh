@@ -5,7 +5,7 @@
 #
 #   doctor                       check Docker and the image
 #   validate [workspace.dsl]     syntax check; exits non-zero on errors
-#   inspect  [workspace.dsl]     C4 quality recommendations (always exits 0)
+#   inspect  [workspace.dsl]     C4 quality findings; exit code = number of findings
 #   export   [workspace.dsl] <format> [outdir]
 #                                plantuml | plantuml/c4plantuml | mermaid | json | static | png | svg
 #   local    [dir]               serve the browser UI for <dir> (default: .) on $STRUCTURIZR_PORT
