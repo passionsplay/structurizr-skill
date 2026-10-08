@@ -95,7 +95,7 @@ case "$cmd" in
       # Startup can take minutes on slower Docker hosts; wait until HTTP answers.
       printf 'Waiting for server'
       for _ in $(seq 1 100); do
-        if curl -s -o /dev/null "http://localhost:$PORT/"; then
+        if curl -s -m 3 -o /dev/null "http://localhost:$PORT/"; then
           echo " ready."
           echo "Running in background. Stop with: $0 stop"
           exit 0
