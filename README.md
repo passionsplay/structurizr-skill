@@ -57,7 +57,7 @@ skills/structurizr/
 | Feature | State |
 |---|---|
 | validate / inspect / Mermaid export | Tested against `structurizr/structurizr` 2026.09.19 |
-| `local` browser UI | Tested; startup can take a few minutes on slower Docker hosts |
+| `local` browser UI | Partial: `/` answers after ~3 min on an Intel Mac, but `/workspace/1` still timed out at 60s. Needs investigation |
 | PNG/SVG export | Untested; needs the `-playwright` image variant |
 
 ## License
