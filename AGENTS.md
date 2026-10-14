@@ -15,6 +15,7 @@ An [Agent Skill](https://agentskills.io/specification) for C4 modeling with the 
 tests/smoke.sh                                   # needs Docker running; ~1 min
 npx -y skills add . --list                       # confirms the CLI discovers the skill
 claude plugin validate .                         # checks .claude-plugin/marketplace.json
+evals/run.sh -m <model>                          # skill vs baseline evals; see evals/README.md
 ```
 
 Run the smoke test after any change to the script, template, or example. Every claim in `SKILL.md` about Structurizr behavior should be verified against the real image, not docs or memory: two claims carried over from the original skill were wrong (forward references, inspect exit codes).
@@ -31,6 +32,6 @@ Run the smoke test after any change to the script, template, or example. Every c
 
 1. **`local` UI.** Find out why `/workspace/1` hangs (slow first load vs real failure; try `-noble` tag, more Docker memory, `docker logs`). Then make the readiness loop probe `/workspace/1`, not `/`.
 2. **PNG/SVG export.** Untested. Needs `structurizr/structurizr:<version>-playwright`; decide how to keep that pinned tag current.
-3. **Trigger evals.** A handful of prompts that should and should not activate the skill.
+3. **Evals.** Task suite v0 lives in `evals/` (pi only). Still to do: a first baseline run, trigger evals (prompts that should and should not activate the skill), a Claude Code adapter (`--bare` needs `ANTHROPIC_API_KEY`).
 4. **CI.** GitHub Actions running `tests/smoke.sh` once the repo has a remote.
 5. **Pin vs float the image.** Script defaults to `:latest`; consider pinning for reproducibility.

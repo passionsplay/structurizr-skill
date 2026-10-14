@@ -1,0 +1,1 @@
+workspace.dsl in the current directory is a Structurizr DSL model of our bookshop. Add a Redis cache that the API uses for sessions, and add a component view of the API showing a catalog controller, an order controller, and the services and repository behind them. Keep everything that is already there.
