@@ -35,7 +35,7 @@ Models that come from a pi extension need that extension loaded explicitly, beca
 | `export-mermaid` | Tool use | one `.mmd` per view, workspace untouched |
 | `component-store` | The cross-container component rule | SPA → component relationship, Stripe modeled |
 
-Metrics on every trial: `inspect_findings` (C4 quality, lower is better), `tech_coverage_pct` (relationships that name a technology), `transcript_validate_mentions` (rough signal that the agent checked its work).
+Metrics on every trial: `inspect_findings` (C4 quality, lower is better), `tech_coverage_pct` (relationships that name a technology), `validate_calls` (shell commands the agent ran that contain `validate`, a signal that it checked its own work), `cost_usd` and `tokens` (as reported by the agent CLI). Quality metrics are blank when the workspace does not validate.
 
 ## Adding a case
 

@@ -78,6 +78,11 @@ for case in "${cases[@]}"; do
         total=$(grep -cE '^(PASS|FAIL)' "$dest/grade.txt" || true)
         pass=0; (( total > 0 && passed == total )) && pass=1
         metrics=$(awk '/^METRIC/ { printf "%s%s=%s", sep, $2, $3; sep = ";" }' "$dest/grade.txt")
+        # Agent-reported spend, priced from the agent's model catalog.
+        usage=$(jq -rs '[.[] | select(.type == "message_end") | .message | select(.role == "assistant") | .usage]
+                        | "cost_usd=\(map(.cost.total // 0) | add // 0);tokens=\(map(.totalTokens // 0) | add // 0)"' \
+                  "$dest/transcript.jsonl" 2>/dev/null || echo "cost_usd=0;tokens=0")
+        metrics="${metrics:+$metrics;}$usage"
 
         mkdir -p "$dest/work"
         (cd "$work" && tar --exclude .structurizr -cf - .) | (cd "$dest/work" && tar -xf -)

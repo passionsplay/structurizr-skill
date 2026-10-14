@@ -62,14 +62,20 @@ cross_container_component_rels() {
 # inspect exits with its finding count; capped at 255 by the shell.
 inspect_findings() { "$SZ" inspect "$WS" >/dev/null 2>&1; echo $?; }
 
-transcript_count() { grep -c -- "$1" "$TRANSCRIPT" 2>/dev/null || true; }
+# Tool calls whose shell command contains a pattern (pi transcript format).
+tool_calls_matching() {
+  jq -rs --arg re "$1" '[.[] | select(.type == "message_end") | .message | select(.role == "assistant")
+    | .content[]? | select(.type == "toolCall") | (.arguments.command // "") | select(test($re))] | length' \
+    "$TRANSCRIPT" 2>/dev/null || echo 0
+}
 
 # Metrics every case reports, after its own gates.
 common_metrics() {
-  if [[ -f "$WS" ]]; then
+  # Quality metrics only mean something for a workspace that parses.
+  if [[ -f "$WS" ]] && validates >/dev/null 2>&1; then
     [[ -f "$JSON" ]] || export_json
     metric inspect_findings "$(inspect_findings)"
     metric tech_coverage_pct "$(tech_coverage)"
   fi
-  metric transcript_validate_mentions "$(transcript_count validate)"
+  metric validate_calls "$(tool_calls_matching 'validate')"
 }
