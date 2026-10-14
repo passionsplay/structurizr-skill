@@ -14,6 +14,7 @@ An [Agent Skill](https://agentskills.io/specification) for C4 modeling with the 
 ```bash
 tests/smoke.sh                                   # needs Docker running; ~1 min
 npx -y skills add . --list                       # confirms the CLI discovers the skill
+claude plugin validate .                         # checks .claude-plugin/marketplace.json
 ```
 
 Run the smoke test after any change to the script, template, or example. Every claim in `SKILL.md` about Structurizr behavior should be verified against the real image, not docs or memory: two claims carried over from the original skill were wrong (forward references, inspect exit codes).
@@ -32,5 +33,4 @@ Run the smoke test after any change to the script, template, or example. Every c
 2. **PNG/SVG export.** Untested. Needs `structurizr/structurizr:<version>-playwright`; decide how to keep that pinned tag current.
 3. **Trigger evals.** A handful of prompts that should and should not activate the skill.
 4. **CI.** GitHub Actions running `tests/smoke.sh` once the repo has a remote.
-5. **Optional Claude Code plugin manifest** (`.claude-plugin/marketplace.json`) if plugin-marketplace install is wanted alongside `npx skills`.
-6. **Pin vs float the image.** Script defaults to `:latest`; consider pinning for reproducibility.
+5. **Pin vs float the image.** Script defaults to `:latest`; consider pinning for reproducibility.

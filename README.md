@@ -13,6 +13,13 @@ npx skills add passionsplay/structurizr-skill            # current project
 npx skills add passionsplay/structurizr-skill -g         # all projects
 ```
 
+As a Claude Code plugin:
+
+```bash
+claude plugin marketplace add passionsplay/structurizr-skill
+claude plugin install structurizr@passionsplay
+```
+
 Or by hand: copy (or symlink) `skills/structurizr/` into your agent's skills directory, for example `~/.claude/skills/structurizr` for Claude Code or `.agents/skills/structurizr` in a project.
 
 Requirements: Docker (Docker Desktop or another engine) and bash.

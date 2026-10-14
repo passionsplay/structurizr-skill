@@ -1,0 +1,15 @@
+{
+  "name": "passionsplay",
+  "description": "Agent skills from passionsplay",
+  "owner": {
+    "name": "Benjamin Turner",
+    "url": "https://passionsplay.com"
+  },
+  "plugins": [
+    {
+      "name": "structurizr",
+      "source": "./",
+      "description": "C4 architecture modeling with the Structurizr DSL, Docker-only: create, validate, inspect, export, and preview workspace.dsl."
+    }
+  ]
+}
