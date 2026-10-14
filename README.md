@@ -13,12 +13,7 @@ npx skills add passionsplay/structurizr-skill            # current project
 npx skills add passionsplay/structurizr-skill -g         # all projects
 ```
 
-Or by hand for Claude Code:
-
-```bash
-git clone https://github.com/passionsplay/structurizr-skill ~/src/passionsplay/structurizr-skill
-ln -s ~/src/passionsplay/structurizr-skill/skills/structurizr ~/.claude/skills/structurizr
-```
+Or by hand: copy (or symlink) `skills/structurizr/` into your agent's skills directory, for example `~/.claude/skills/structurizr` for Claude Code or `.agents/skills/structurizr` in a project.
 
 Requirements: Docker (Docker Desktop or another engine) and bash.
 
