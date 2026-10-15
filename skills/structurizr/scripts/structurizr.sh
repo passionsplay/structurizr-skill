@@ -8,7 +8,8 @@
 #   inspect  [workspace.dsl]     C4 quality findings; exit code = number of findings
 #   export   [workspace.dsl] <format> [outdir]
 #                                plantuml | plantuml/c4plantuml | mermaid | json | static | png | svg
-#   local    [dir]               serve the browser UI for <dir> (default: .) on $STRUCTURIZR_PORT
+#   local    [dir]               serve the browser UI for <dir> (default: .) on $STRUCTURIZR_PORT;
+#                                no-op if already serving <dir>, restarts if serving another dir
 #   stop                         stop a background `local` server
 #   raw      <args...>           pass arguments straight to the structurizr binary
 #
@@ -20,6 +21,8 @@
 #   STRUCTURIZR_RENDER_IMAGE     image for png/svg export (needs the -playwright variant)
 #   STRUCTURIZR_PORT             default 8080
 #   STRUCTURIZR_DETACH=1         run `local` in the background
+#   STRUCTURIZR_REFRESH_MS       browser polls for DSL changes this often (default 2000; 0 = off)
+#   STRUCTURIZR_CONTAINER        container name for `local`/`stop` (default structurizr-local)
 
 set -euo pipefail
 
@@ -28,7 +31,8 @@ IMAGE="${STRUCTURIZR_IMAGE:-structurizr/structurizr:latest}"
 RENDER_IMAGE="${STRUCTURIZR_RENDER_IMAGE:-structurizr/structurizr:2026.09.19-playwright}"
 PORT="${STRUCTURIZR_PORT:-8080}"
 MOUNT=/usr/local/structurizr
-CONTAINER_NAME=structurizr-local
+CONTAINER_NAME="${STRUCTURIZR_CONTAINER:-structurizr-local}"
+REFRESH_MS="${STRUCTURIZR_REFRESH_MS:-2000}"
 
 die() { echo "structurizr: $*" >&2; exit 2; }
 
@@ -46,6 +50,12 @@ default_workspace() {
   if [[ -n "${1:-}" ]]; then echo "$1"; return; fi
   [[ -f workspace.dsl ]] || die "no workspace given and ./workspace.dsl not found"
   echo workspace.dsl
+}
+
+# Host directory the running `local` container serves, or nothing.
+serving_dir() {
+  docker inspect -f "{{range .Mounts}}{{if eq .Destination \"$MOUNT\"}}{{.Source}}{{end}}{{end}}" \
+    "$CONTAINER_NAME" 2>/dev/null || true
 }
 
 check_inside_pwd() {
@@ -88,14 +98,26 @@ case "$cmd" in
     require_docker
     dir="$(cd "${1:-.}" && pwd)"
     [[ -f "$dir/workspace.dsl" || -f "$dir/workspace.json" ]] || die "$dir has no workspace.dsl or workspace.json"
-    args=(--rm -p "$PORT:8080" -v "$dir":"$MOUNT" --name "$CONTAINER_NAME")
+    # The server re-reads the DSL on every request, so a running server for
+    # the same directory never needs a restart; only a new directory does.
+    serving="$(serving_dir)"
+    if [[ "$serving" == "$dir" ]]; then
+      echo "Already serving $dir at http://localhost:$PORT (edits reload in the browser)"
+      exit 0
+    elif [[ -n "$serving" ]]; then
+      echo "Switching from $serving"
+      docker stop "$CONTAINER_NAME" >/dev/null
+    fi
+    args=(--rm -p "$PORT:8080" -v "$dir":"$MOUNT" --name "$CONTAINER_NAME"
+          -e "STRUCTURIZR_AUTOREFRESHINTERVAL=$REFRESH_MS")
     echo "Serving $dir at http://localhost:$PORT"
     if [[ "${STRUCTURIZR_DETACH:-0}" == 1 ]]; then
       docker run -d "${args[@]}" "$IMAGE" local >/dev/null
-      # Startup can take minutes on slower Docker hosts; wait until HTTP answers.
+      # Startup can take minutes on slower Docker hosts. `/` answers before the
+      # workspace has loaded, so wait for the workspace page itself.
       printf 'Waiting for server'
       for _ in $(seq 1 100); do
-        if curl -s -m 3 -o /dev/null "http://localhost:$PORT/"; then
+        if [[ "$(curl -s -m 3 -o /dev/null -w '%{http_code}' "http://localhost:$PORT/workspace/1")" == 200 ]]; then
           echo " ready."
           echo "Running in background. Stop with: $0 stop"
           exit 0
@@ -118,7 +140,7 @@ case "$cmd" in
     run "$IMAGE" "$@"
     ;;
   help|-h|--help)
-    sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'
     ;;
   *)
     die "unknown command '$cmd' (try: help)"
