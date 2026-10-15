@@ -26,11 +26,13 @@ Run the smoke test after any change to the script, template, or example. Every c
 - `inspect` exits with the number of findings, labelled `ERROR` even though they are recommendations.
 - Elements must be declared before relationships that reference them.
 - `export -format mermaid` writes one `.mmd` per view.
-- `local`: `/` answers after ~3 minutes on an Intel Mac; `/workspace/1` still timed out at 60s.
+- `local`: `/workspace/1` returns 200 about 40s after start on an Intel Mac (2026-10-14; the earlier 3-minute hang did not recur).
+- `local` re-reads `workspace.dsl` per request: an edit shows in `/api/workspace/1` and bumps `/workspace/lastModified` without a restart.
+- `STRUCTURIZR_AUTOREFRESHINTERVAL=<ms>` (env) turns on browser polling of `/workspace/lastModified`; the default is 0 (off).
 
 ## Open work
 
-1. **`local` UI.** Find out why `/workspace/1` hangs (slow first load vs real failure; try `-noble` tag, more Docker memory, `docker logs`). Then make the readiness loop probe `/workspace/1`, not `/`.
+1. **`local` across projects.** The startup log prints `structurizr.workspaces: 1`; check whether one server can serve several workspaces from a parent folder, which would remove the restart when switching directories.
 2. **PNG/SVG export.** Untested. Needs `structurizr/structurizr:<version>-playwright`; decide how to keep that pinned tag current.
 3. **Evals.** Task suite v0 lives in `evals/` (pi, containerized by default). Still to do: a first baseline run, trigger evals (prompts that should and should not activate the skill), a Claude Code adapter (`--bare` needs `ANTHROPIC_API_KEY`).
 4. **CI.** GitHub Actions running `tests/smoke.sh` once the repo has a remote.

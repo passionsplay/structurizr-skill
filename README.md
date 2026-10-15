@@ -36,7 +36,7 @@ skills/structurizr/scripts/structurizr.sh doctor
 skills/structurizr/scripts/structurizr.sh validate workspace.dsl
 skills/structurizr/scripts/structurizr.sh inspect workspace.dsl
 skills/structurizr/scripts/structurizr.sh export workspace.dsl mermaid diagrams
-skills/structurizr/scripts/structurizr.sh local            # http://localhost:8080
+skills/structurizr/scripts/structurizr.sh local            # http://localhost:8080; leave it running, edits reload
 ```
 
 ## Layout
@@ -59,7 +59,7 @@ skills/structurizr/
 | Feature | State |
 |---|---|
 | validate / inspect / Mermaid export | Tested against `structurizr/structurizr` 2026.09.19 |
-| `local` browser UI | Partial: `/` answers after ~3 min on an Intel Mac, but `/workspace/1` still timed out at 60s. Needs investigation |
+| `local` browser UI | Tested: `/workspace/1` loads in ~40s on an Intel Mac; DSL edits reload in the browser without a restart |
 | PNG/SVG export | Untested; needs the `-playwright` image variant |
 
 ## License
