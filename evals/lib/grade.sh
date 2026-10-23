@@ -35,9 +35,9 @@ view_count()    { q "(.views.$1 // []) | length"; }
 rel_count()     { q "$REL | length"; }
 component_count() { q '[.model.softwareSystems[]?.containers[]?.components[]?] | length'; }
 
-# Case-insensitive ERE match against any element name.
+# Case-insensitive ERE match against any element name or technology.
 has_element() {
-  q '[.. | objects | select(has("name") and has("tags") and (has("sourceId") | not)) | .name] | .[]' | grep -Eiq "$1"
+  q '[.. | objects | select(has("name") and has("tags") and (has("sourceId") | not)) | .name, (.technology // empty)] | .[]' | grep -Eiq "$1"
 }
 
 # Percent of explicit relationships that name a technology.
