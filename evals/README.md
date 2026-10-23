@@ -12,9 +12,9 @@ evals/run.sh -m <model> -c fix-forward-reference -k 3                    # one c
 evals/run.sh -m <model-a> -m <model-b> -C skill                          # compare models with the skill only
 ```
 
-Needs Docker, `jq`, `timeout`, and the agent CLI (`pi` for now). Each trial runs in a fresh temp dir outside the repo, so the baseline agent cannot find the skill by reading parent directories. Artifacts (prompt, JSON transcript, grade, the agent's files) land in `evals/runs/<run-id>/`, which is gitignored. Copy a run's summary table into `results/` when it is worth keeping, for example before a release.
+Needs Docker, `jq`, `timeout`, and `pi` on the host (only for its stored OpenRouter credential; set `OPENROUTER_API_KEY` instead if you prefer). Each trial runs in a fresh temp dir inside a container built from `docker/Dockerfile` (the first run builds it): `pi`, bash, `jq`, `curl`, and a Docker client, with no Java, no repo, and none of your home directory. The container reaches the host Docker daemon through its socket, which is how the skill's script runs Structurizr, so this isolates the filesystem but is not a sandbox against a hostile agent. `-a pi` runs `pi` directly on the host instead, which the first results showed leaks host tools into the baseline. Artifacts (prompt, JSON transcript, grade, the agent's files) land in `evals/runs/<run-id>/`, which is gitignored. Copy a run's summary table into `results/` when it is worth keeping, for example before a release.
 
-Models that come from a pi extension need that extension loaded explicitly, because the adapter turns extensions off: `PI_EXTENSIONS=<path/to/extension.js> evals/run.sh -m <provider/model>`.
+Models that come from a pi extension only work with `-a pi`, which can load one explicitly: `PI_EXTENSIONS=<path/to/extension.js> evals/run.sh -a pi -m <provider/model>`.
 
 ## Layout
 
@@ -22,6 +22,7 @@ Models that come from a pi extension need that extension loaded explicitly, beca
 - `cases/<name>/setup/`: optional starting files copied into the work dir.
 - `cases/<name>/check.sh`: grading. Prints `PASS`/`FAIL <gate>` lines (a trial passes only if every gate passes) and `METRIC <name> <value>` lines (tracked, never pass/fail).
 - `lib/grade.sh`: shared checks. They export the workspace to JSON with the real Structurizr image and query the parsed model with `jq`, rather than grepping the DSL.
+- `docker/Dockerfile`: the trial image.
 - `agents/<name>.sh`: one adapter per agent CLI. Contract: `<model> <skill|baseline> <prompt-file>`, run in the work dir, transcript to stdout.
 - `results/`: committed summaries.
 

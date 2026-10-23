@@ -7,11 +7,12 @@
 #   -c  case directory name under evals/cases (repeatable; default all)
 #   -k  trials per cell (default 1; use 3+ for pass^k)
 #   -C  comma-separated conditions (default skill,baseline)
-#   -a  agent adapter under evals/agents (default pi)
+#   -a  agent adapter under evals/agents (default pi-docker; pi runs on the host)
 #   -t  per-trial timeout in seconds (default 600)
 #
-# Each trial runs in a fresh temp dir outside the repo so the agent cannot find the skill by
-# wandering up the tree. Artifacts and grades land in evals/runs/<run-id>/ (gitignored).
+# Each trial runs in a fresh temp dir outside the repo, and by default inside a container that
+# sees only that dir, so the baseline cannot find the skill or host tools by wandering.
+# Artifacts and grades land in evals/runs/<run-id>/ (gitignored).
 
 set -uo pipefail
 
@@ -22,7 +23,7 @@ export SKILL_DIR="$ROOT/skills/structurizr"
 export EVAL_LIB="$EVALS/lib/grade.sh"
 
 models=() cases=() conds=(skill baseline)
-k=1 agent=pi timeout_s=600
+k=1 agent=pi-docker timeout_s=600
 
 usage() { sed -n '2,13p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 

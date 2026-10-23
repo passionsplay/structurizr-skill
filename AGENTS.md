@@ -32,6 +32,6 @@ Run the smoke test after any change to the script, template, or example. Every c
 
 1. **`local` UI.** Find out why `/workspace/1` hangs (slow first load vs real failure; try `-noble` tag, more Docker memory, `docker logs`). Then make the readiness loop probe `/workspace/1`, not `/`.
 2. **PNG/SVG export.** Untested. Needs `structurizr/structurizr:<version>-playwright`; decide how to keep that pinned tag current.
-3. **Evals.** Task suite v0 lives in `evals/` (pi only). Still to do: a first baseline run, trigger evals (prompts that should and should not activate the skill), a Claude Code adapter (`--bare` needs `ANTHROPIC_API_KEY`).
+3. **Evals.** Task suite v0 lives in `evals/` (pi, containerized by default). Still to do: a first baseline run, trigger evals (prompts that should and should not activate the skill), a Claude Code adapter (`--bare` needs `ANTHROPIC_API_KEY`).
 4. **CI.** GitHub Actions running `tests/smoke.sh` once the repo has a remote.
 5. **Pin vs float the image.** Script defaults to `:latest`; consider pinning for reproducibility.
