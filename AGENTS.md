@@ -34,6 +34,6 @@ Run the smoke test after any change to the script, template, or example. Every c
 
 1. **`local` across projects.** The startup log prints `structurizr.workspaces: 1`; check whether one server can serve several workspaces from a parent folder, which would remove the restart when switching directories.
 2. **PNG/SVG export.** Untested. Needs `structurizr/structurizr:<version>-playwright`; decide how to keep that pinned tag current.
-3. **Evals.** Task suite v0 lives in `evals/` (pi, containerized by default). Still to do: a first baseline run, trigger evals (prompts that should and should not activate the skill), a Claude Code adapter (`--bare` needs `ANTHROPIC_API_KEY`).
-4. **CI.** GitHub Actions running `tests/smoke.sh` once the repo has a remote.
+3. **Evals.** Task suite v0 lives in `evals/` (pi, containerized by default). First baseline run in `evals/results/`. Still to do: trigger evals (prompts that should and should not activate the skill), a Claude Code adapter (`--bare` needs `ANTHROPIC_API_KEY`).
+4. **CI.** GitHub Actions running `tests/smoke.sh`.
 5. **Pin vs float the image.** Script defaults to `:latest`; consider pinning for reproducibility.
