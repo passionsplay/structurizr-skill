@@ -7,6 +7,10 @@ set -euo pipefail
 
 results="${1:?usage: summarize.sh <results.tsv>}"
 
+# Run settings (jobs, timeout) affect `seconds`, so print them with the numbers.
+run_txt="$(dirname "$results")/run.txt"
+[[ -f "$run_txt" ]] && { echo "Run: $(cat "$run_txt")"; echo; }
+
 awk -F'\t' '
   NR == 1 { next }
   {
