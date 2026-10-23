@@ -43,11 +43,11 @@ cp "$ROOT/skills/structurizr/assets/examples/webapp-oauth.dsl" "$tmp/a/workspace
 cp "$ROOT/skills/structurizr/assets/workspace-template.dsl" "$tmp/b/workspace.dsl"
 trap 'docker stop structurizr-smoke >/dev/null 2>&1; rm -rf "$tmp"' EXIT
 
-check "local starts and serves /workspace/1" 0 "$SZ" local "$tmp/a"
+check "local starts and serves the workspace" 0 "$SZ" local "$tmp/a"
 check "local on the same dir is a no-op"     0 sh -c "\"$SZ\" local \"$tmp/a\" | grep -q 'Already serving'"
 perl -0pi -e 's/model \{/model {\n        smokeEdit = person "Smoke Edit"/' "$tmp/a/workspace.dsl"
 check "an edit reaches the running server"   0 sh -c "for i in 1 2 3 4 5 6 7 8 9 10; do curl -s $url/api/workspace/1 | grep -q 'Smoke Edit' && exit 0; sleep 1; done; exit 1"
-check "browser auto-refresh is on"           0 sh -c "curl -s $url/workspace/1 | grep -q 'autoRefreshInterval = 2000'"
+check "browser auto-refresh is on"           0 sh -c "docker inspect -f '{{.Config.Env}}' structurizr-smoke | grep -q 'STRUCTURIZR_AUTOREFRESHINTERVAL=2000'"
 check "local on another dir switches"        0 "$SZ" local "$tmp/b"
 check "the server now serves the new dir"    0 sh -c "docker inspect -f '{{range .Mounts}}{{.Source}}{{end}}' structurizr-smoke | grep -q '/b\$'"
 check "stop"                                 0 "$SZ" stop

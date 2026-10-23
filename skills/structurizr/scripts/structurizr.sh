@@ -113,11 +113,12 @@ case "$cmd" in
     echo "Serving $dir at http://localhost:$PORT"
     if [[ "${STRUCTURIZR_DETACH:-0}" == 1 ]]; then
       docker run -d "${args[@]}" "$IMAGE" local >/dev/null
-      # Startup can take minutes on slower Docker hosts. `/` answers before the
-      # workspace has loaded, so wait for the workspace page itself.
+      # `/` answers before the workspace has loaded, so wait for the workspace
+      # API. Not the /workspace/1 page: its first render compiles a JSP, which
+      # can take many minutes of CPU on slower Docker hosts.
       printf 'Waiting for server'
       for _ in $(seq 1 100); do
-        if [[ "$(curl -s -m 3 -o /dev/null -w '%{http_code}' "http://localhost:$PORT/workspace/1")" == 200 ]]; then
+        if [[ "$(curl -s -m 3 -o /dev/null -w '%{http_code}' "http://localhost:$PORT/api/workspace/1")" == 200 ]]; then
           echo " ready."
           echo "Running in background. Stop with: $0 stop"
           exit 0
