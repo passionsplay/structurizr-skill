@@ -2,7 +2,7 @@
 name: structurizr
 description: Create, validate, inspect, export, and preview C4 architecture models written in Structurizr DSL, using only Docker (no Java, no MCP server). Use when the user wants an architecture diagram, a C4 model (system context, container, component views), a workspace.dsl file, or to check, render, or export an existing Structurizr workspace to Mermaid, PlantUML, PNG, or SVG.
 license: MIT
-compatibility: Requires Docker (Docker Desktop or another engine) and bash. Network access on first run to pull structurizr/structurizr.
+compatibility: Requires Docker (Docker Desktop or another engine) and bash. Network access on first run to pull structurizr/structurizr. The first command after a new image also unpacks it once into a Docker volume (one to two minutes); later commands take seconds.
 metadata:
   author: passionsplay
   version: "0.1.0"

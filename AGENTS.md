@@ -29,6 +29,8 @@ Run the smoke test after any change to the script, template, or example. Every c
 - `local`: `/api/workspace/1` returns 200 within about a minute of start. The first `/workspace/1` page render compiles a JSP and scans the WAR; on an Intel Mac (6 Docker CPUs) that has taken from 40s (2026-10-14) to over 15 minutes of pinned CPU (2026-10-23). Later renders are fast, which is the case for leaving the server running.
 - `local` re-reads `workspace.dsl` per request: an edit shows in `/api/workspace/1` and bumps `/workspace/lastModified` without a restart.
 - `STRUCTURIZR_AUTOREFRESHINTERVAL=<ms>` (env) turns on browser polling of `/workspace/lastModified`; the default is 0 (off).
+- Startup cost is the war, not Docker: the image runs one 211 MB Spring Boot war with 224 nested jars, and a no-op container starts in about 1s. The script's fast path unpacks it once per image ID (`java -Djarmode=tools ... extract`) into a `structurizr-cache-<id>` volume mounted at `/home/nonroot` (so the image's user owns it) and runs with a JVM class-data archive and C1-only JIT. Measured 2026-10-26 on an Intel Mac under load: `validate` 20s to 9s, `inspect` 14s to 7s, four concurrent validates 79s to 19s; json and static exports identical. A Docker volume beats a host bind mount (extract 6 min, validate 12s over the bind mount).
+- The extracted app has no `WEB-INF/jsp`, so `/workspace/1` 404s from it: `local` keeps running the image as shipped.
 
 ## Open work
 

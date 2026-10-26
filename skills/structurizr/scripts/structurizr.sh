@@ -23,6 +23,7 @@
 #   STRUCTURIZR_DETACH=1         run `local` in the background
 #   STRUCTURIZR_REFRESH_MS       browser polls for DSL changes this often (default 2000; 0 = off)
 #   STRUCTURIZR_CONTAINER        container name for `local`/`stop` (default structurizr-local)
+#   STRUCTURIZR_FAST=0           skip the unpacked-app cache and run the image as shipped
 
 set -euo pipefail
 
@@ -43,7 +44,48 @@ require_docker() {
 
 run() {
   local image="$1"; shift
+  if [[ "$image" == "$IMAGE" && "${STRUCTURIZR_FAST:-1}" != 0 ]]; then
+    local code
+    fast_run "$@" && code=0 || code=$?
+    # FAST_RAN is set once the command itself ran, so its exit code is the answer.
+    [[ -n "$FAST_RAN" ]] && return "$code"
+  fi
   docker run --rm -v "$PWD":"$MOUNT" -w "$MOUNT" "$image" "$@"
+}
+
+# The image ships one 211 MB Spring Boot war with 224 nested jars, and every command
+# unpacks classes from it at startup: about 30s of CPU per validate. Unpacking it once
+# into a volume (per image ID) and keeping a JVM class-data archive there cuts that
+# to under 10s. The volume mounts at the image user's home, so it is owned by that user.
+FAST_RAN=
+fast_run() {
+  local id vol err code
+  id="$(docker image inspect -f '{{.Id}}' "$IMAGE" 2>/dev/null)" \
+    || { docker pull -q "$IMAGE" >/dev/null && id="$(docker image inspect -f '{{.Id}}' "$IMAGE")"; } || return 1
+  id="${id#sha256:}"; vol="structurizr-cache-${id:0:12}"
+  if ! docker volume inspect "$vol" >/dev/null 2>&1; then
+    echo "structurizr: unpacking the image once for faster runs (about a minute)..." >&2
+    docker volume create "$vol" >/dev/null || return 1
+    if ! docker run --rm -v "$vol":/home/nonroot --entrypoint java "$IMAGE" \
+        -Djarmode=tools -jar /usr/local/structurizr.war extract --destination /home/nonroot/app >/dev/null 2>&1; then
+      docker volume rm -f "$vol" >/dev/null 2>&1; return 1
+    fi
+    # Caches for older images are dead weight; one in use by a container is left alone.
+    docker volume ls -q --filter name=structurizr-cache- | grep -vx "$vol" | xargs docker volume rm >/dev/null 2>&1 || true
+  fi
+  err="$(mktemp)"
+  FAST_RAN=1
+  docker run --rm -v "$PWD":"$MOUNT" -w "$MOUNT" -v "$vol":/home/nonroot --entrypoint java "$IMAGE" \
+    -Dio.netty.noUnsafe=true --enable-native-access=ALL-UNNAMED \
+    -XX:TieredStopAtLevel=1 -Xlog:cds=off,cds+dynamic=off -XX:+AutoCreateSharedArchive -XX:SharedArchiveFile=/home/nonroot/app.jsa \
+    -jar /home/nonroot/app/structurizr.war "$@" 2>"$err" && code=0 || code=$?
+  # A half-unpacked cache (an interrupted first run) fails to load classes: drop it
+  # and fall back to the shipped image; the next run unpacks again.
+  if grep -qE 'Unable to access jarfile|ClassNotFoundException|NoClassDefFoundError|Could not find or load main class' "$err"; then
+    rm -f "$err"; FAST_RAN=; docker volume rm -f "$vol" >/dev/null 2>&1; return 1
+  fi
+  cat "$err" >&2; rm -f "$err"
+  return "$code"
 }
 
 default_workspace() {
@@ -141,7 +183,7 @@ case "$cmd" in
     run "$IMAGE" "$@"
     ;;
   help|-h|--help)
-    sed -n '2,25p' "$0" | sed 's/^# \{0,1\}//'
+    sed -n '2,26p' "$0" | sed 's/^# \{0,1\}//'
     ;;
   *)
     die "unknown command '$cmd' (try: help)"
