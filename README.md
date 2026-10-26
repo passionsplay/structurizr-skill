@@ -26,7 +26,7 @@ Requirements: Docker (Docker Desktop or another engine) and bash.
 
 ### First run and disk use
 
-The first command pulls `structurizr/structurizr` (about 280 MB) and then unpacks it once into a Docker volume named `structurizr-cache-<image id>` (about 210 MB), which takes one to two minutes. After that, `validate` and `inspect` take seconds instead of the 20 to 30 seconds the image needs as shipped, because every launch of the shipped image unpacks classes from a 211 MB Spring Boot archive. When the image updates, the next run builds a new cache and removes the old one. To opt out, set `STRUCTURIZR_FAST=0`; to reclaim the space, `docker volume rm` the cache volume.
+The first command pulls `structurizr/structurizr` (about 280 MB) and then unpacks it once into a Docker volume named `structurizr-cache-<image id>` (about 210 MB), which takes one to two minutes. After that, `validate` and `inspect` take under 10 seconds instead of the 20 to 30 seconds the image needs as shipped, because every launch of the shipped image unpacks classes from a 211 MB Spring Boot archive. When the image updates, the next run builds a new cache and removes the old one. To opt out, set `STRUCTURIZR_FAST=0`; to reclaim the space, `docker volume rm` the cache volume.
 
 ## Use
 
