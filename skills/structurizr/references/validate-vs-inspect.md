@@ -7,7 +7,7 @@ Two commands, two questions. Users who ask "is this valid?" want `validate`. Use
 | Question | Will this parse into a workspace? | Does this follow C4 and Structurizr recommendations? |
 | Output on success | Nothing (exit 0) | List of findings, or nothing |
 | Output on problems | `ERROR ... at line N of workspace.dsl: <source line>` | One line per finding: `ERROR \| <rule id> \| <message>` |
-| Exit code | Non-zero on any error | The number of findings (0 only when there are none) |
+| Exit code | Non-zero on any error | Non-zero when there are findings (the finding count up to 2026.09.19, 1 from 2026.10.26); count the printed lines instead |
 | Blocking? | Yes. Nothing renders until it passes. | No. Findings are recommendations. |
 
 ## Common validate errors

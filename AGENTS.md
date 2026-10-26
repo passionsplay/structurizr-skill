@@ -20,10 +20,10 @@ evals/run.sh -m <model>                          # skill vs baseline evals; see 
 
 Run the smoke test after any change to the script, template, or example. Every claim in `SKILL.md` about Structurizr behavior should be verified against the real image, not docs or memory: two claims carried over from the original skill were wrong (forward references, inspect exit codes).
 
-## Verified behavior (image 2026.09.19)
+## Verified behavior (image 2026.09.19, rechecked where noted on 2026.10.26)
 
 - `validate` prints nothing and exits 0 on success; non-zero with `... at line N` on errors.
-- `inspect` exits with the number of findings, labelled `ERROR` even though they are recommendations.
+- `inspect` prints one line per finding, labelled `ERROR` even though they are recommendations, and exits non-zero when there are any. Up to 2026.09.19 the exit code was the finding count; from 2026.10.26 it is 1 (`:latest` moved under us on 2026-10-26, which silently broke an eval metric).
 - Elements must be declared before relationships that reference them.
 - `export -format mermaid` writes one `.mmd` per view.
 - `local`: `/api/workspace/1` returns 200 within about a minute of start. The first `/workspace/1` page render compiles a JSP and scans the WAR; on an Intel Mac (6 Docker CPUs) that has taken from 40s (2026-10-14) to over 15 minutes of pinned CPU (2026-10-23). Later renders are fast, which is the case for leaving the server running.

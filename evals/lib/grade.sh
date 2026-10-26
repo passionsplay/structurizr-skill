@@ -59,8 +59,9 @@ cross_container_component_rels() {
     | length'
 }
 
-# inspect exits with its finding count; capped at 255 by the shell.
-inspect_findings() { "$SZ" inspect "$WS" >/dev/null 2>&1; echo $?; }
+# Count the printed findings: the exit code was the count up to image 2026.09.19 and is
+# just 1 from 2026.10.26.
+inspect_findings() { "$SZ" inspect "$WS" 2>&1 | grep -cE '^(ERROR|WARNING|INFO) +\|' || true; }
 
 # Tool calls whose shell command contains a pattern (pi transcript format).
 tool_calls_matching() {
