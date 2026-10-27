@@ -64,9 +64,13 @@ evals/                            # skill vs no-skill evals; see evals/README.md
 
 | Feature | State |
 |---|---|
-| validate / inspect / Mermaid, JSON, static export | Tested against `structurizr/structurizr` 2026.09.19, through the cache and as shipped (identical output) |
+| validate / inspect / Mermaid, JSON, static export | Tested against `structurizr/structurizr` 2026.09.19 and 2026.10.26, through the cache and as shipped (identical output) |
 | `local` browser UI | Tested; runs the image as shipped (the cache lacks the web pages). API ready in about a minute; the first page render can take minutes on slow Docker hosts (JSP compile); DSL edits reload in the browser without a restart |
 | PNG/SVG export | Untested; needs the `-playwright` image variant |
+
+## Changes
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## License
 

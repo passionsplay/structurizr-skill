@@ -5,7 +5,7 @@ license: MIT
 compatibility: Requires Docker (Docker Desktop or another engine) and bash. Network access on first run to pull structurizr/structurizr. The first command after a new image also unpacks it once into a Docker volume (one to two minutes); later commands take seconds.
 metadata:
   author: passionsplay
-  version: "0.1.0"
+  version: "0.2.0"
 ---
 
 # Structurizr
